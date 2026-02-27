@@ -6,9 +6,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 复制代码
+# 复制所有代码
 COPY . .
 
-# 启动命令
-WORKDIR /app/llm_assistant/backend
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# 设置 Python 路径并启动
+ENV PYTHONPATH=/app
+CMD ["sh", "-c", "cd /app/llm_assistant/backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
