@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 客户服务助手 - 关键时刻</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary: #f39c12;
+            --bg: #fef9f3;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #ecf0f1;
+            --user-msg: #e74c3c;
+            --ai-msg: #f8f9fa;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            height: 100vh;
+        }
+        
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 240px 1fr;
+            }
+            .sidebar-right {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-left {
+                display: none;
+            }
+        }
+        
+        /* 左侧边栏 */
+        .sidebar-left {
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        
+        .new-chat-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+        
+        .new-chat-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .skills-section h3 {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .skill-tag {
+            display: inline-block;
+            background: var(--bg);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 4px 4px 4px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .skill-tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* 主聊天区 */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        
+        .chat-header {
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header h2 {
+            font-size: 16px;
+            color: var(--text);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .welcome h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+        
+        .welcome p {
+            color: var(--text-light);
+            max-width: 500px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .suggestion-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .suggestion-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.1);
+        }
+        
+        .suggestion-card h4 {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+        
+        .suggestion-card p {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .message.user .avatar {
+            background: var(--user-msg);
+        }
+        
+        .message.assistant .avatar {
+            background: var(--secondary);
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .message.user .message-content {
+            background: var(--user-msg);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.assistant .message-content {
+            background: var(--ai-msg);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .input-area {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: 16px 24px;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        textarea {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        textarea:focus {
+            border-color: var(--primary);
+        }
+        
+        .send-btn, .todo-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        
+        .send-btn:hover, .todo-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .send-btn:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 右侧边栏 */
+        .sidebar-right {
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-right h3 {
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .todo-item {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+        }
+        
+        .todo-item .task {
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .todo-item .meta {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-light);
+        }
+        
+        .todo-item .priority-high {
+            color: var(--primary);
+        }
+        
+        .empty-todos {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 13px;
+            padding: 40px 20px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧边栏 -->
+        <aside class="sidebar-left">
+            <div class="logo">🎯 客户服务助手</div>
+            <div class="subtitle">基于《关键时刻》理论</div>
+            <button class="new-chat-btn" onclick="clearChat()">+ 新对话</button>
+            
+            <div class="skills-section">
+                <h3>技能分类</h3>
+                <div id="skillTags">
+                    <span class="skill-tag" onclick="insertSkill('客户服务')">客户服务</span>
+                    <span class="skill-tag" onclick="insertSkill('关键时刻')">关键时刻</span>
+                    <span class="skill-tag" onclick="insertSkill('员工授权')">员工授权</span>
+                    <span class="skill-tag" onclick="insertSkill('组织变革')">组织变革</span>
+                    <span class="skill-tag" onclick="insertSkill('领导力')">领导力</span>
+                    <span class="skill-tag" onclick="insertSkill('战略')">战略</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- 主聊天区 -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <h2>💬 对话</h2>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    <span id="statusText">在线 - 46 个技能已加载</span>
+                </div>
+            </header>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome">
+                    <h1>🎯 客户服务助手</h1>
+                    <p>基于 Jan Carlzon《关键时刻》(Moments of Truth) 理论，帮助你理解和应用客户服务的核心理念。每一次 15 秒的客户接触都是创造公司形象的机会。</p>
+                    <div class="suggestions">
+                        <div class="suggestion-card" onclick="sendSuggestion('什么是关键时刻？为什么它如此重要？')">
+                            <h4>🔑 理解关键时刻</h4>
+                            <p>了解 15 秒客户接触的核心概念</p>
+                        </div>
+                        <div class="suggestion-card" onclick="sendSuggestion('如何授权前线员工做出即时决策？')">
+                            <h4>💪 前线员工授权</h4>
+                            <p>学会移除障碍，让员工自主服务客户</p>
+                        </div>
+                        <div class="suggestion-card" onclick="sendSuggestion('如何设计客户为中心的服务流程？')">
+                            <h4>🎨 客户中心设计</h4>
+                            <p>从客户视角重新定义服务流程</p>
+                        </div>
+                        <div class="suggestion-card" onclick="sendSuggestion('组织变革中如何处理中层管理的角色转变？')">
+                            <h4>🔄 组织变革</h4>
+                            <p>扁平化管理与中层管理转型</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea id="chatInput" rows="2" placeholder="询问关于客户服务、关键时刻、员工授权的问题..." onkeydown="handleKeydown(event)"></textarea>
+                    <div class="action-buttons">
+                        <button class="todo-btn" onclick="generateTodos()">📝 生成行动清单</button>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 右侧边栏 -->
+        <aside class="sidebar-right">
+            <h3>📝 行动清单</h3>
+            <div class="todo-list" id="todoList">
+                <div class="empty-todos">
+                    点击"生成行动清单"<br>获取具体可执行的建议
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // API 基础地址 - 自动检测当前域名
+        const API_BASE = window.location.origin;
+        
+        // 状态
+        let messages = [];
+        let isLoading = false;
+        
+        // 初始化
+        document.getElementById('chatInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // 插入技能提示
+        function insertSkill(skill) {
+            const input = document.getElementById('chatInput');
+            input.value = `关于【${skill}】，`;
+            input.focus();
+        }
+        
+        // 发送建议
+        function sendSuggestion(text) {
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        }
+        
+        // 清空对话
+        function clearChat() {
+            messages = [];
+            document.getElementById('messagesContainer').innerHTML = `
+                <div class="welcome">
+                    <h1>🎯 客户服务助手</h1>
+                    <p>基于 Jan Carlzon《关键时刻》(Moments of Truth) 理论，帮助你理解和应用客户服务的核心理念。每一次 15 秒的客户接触都是创造公司形象的机会。</p>
+                    <div class="suggestions">
+                        <div class="suggestion-card" onclick="sendSuggestion('什么是关键时刻？为什么它如此重要？')">
+                            <h4>🔑 理解关键时刻</h4>
+                            <p>了解 15 秒客户接触的核心概念</p>
+                        </div>
+                        <div class="suggestion-card" onclick="sendSuggestion('如何授权前线员工做出即时决策？')">
+                            <h4>💪 前线员工授权</h4>
+                            <p>学会移除障碍，让员工自主服务客户</p>
+                        </div>
+                        <div class="suggestion-card" onclick="sendSuggestion('如何设计客户为中心的服务流程？')">
+                            <h4>🎨 客户中心设计</h4>
+                            <p>从客户视角重新定义服务流程</p>
+                        </div>
+                        <div class="suggestion-card" onclick="sendSuggestion('组织变革中如何处理中层管理的角色转变？')">
+                            <h4>🔄 组织变革</h4>
+                            <p>扁平化管理与中层管理转型</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text || isLoading) return;
+            
+            // 如果是第一次发送，清空欢迎界面
+            if (messages.length === 0) {
+                document.getElementById('messagesContainer').innerHTML = '';
+            }
+            
+            // 添加用户消息
+            addMessage('user', text);
+            messages.push([text, '']);
+            input.value = '';
+            
+            // 显示加载状态
+            setLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/chat/stream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        history: messages.slice(0, -1),
+                        stream: true
+                    })
+                });
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let assistantMessage = '';
+                
+                // 创建助手消息容器
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message assistant';
+                messageDiv.innerHTML = `
+                    <div class="avatar">🎯</div>
+                    <div class="message-content" id="streamingContent"></div>
+                `;
+                document.getElementById('messagesContainer').appendChild(messageDiv);
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    assistantMessage += chunk;
+                    document.getElementById('streamingContent').textContent = assistantMessage;
+                    
+                    // 滚动到底部
+                    const container = document.getElementById('messagesContainer');
+                    container.scrollTop = container.scrollHeight;
+                }
+                
+                // 更新历史
+                messages[messages.length - 1][1] = assistantMessage;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('assistant', '抱歉，连接服务时出现错误。请检查网络连接或稍后重试。');
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        // 添加消息到界面
+        function addMessage(role, content) {
+            const container = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.innerHTML = `
+                <div class="avatar">${role === 'user' ? '👤' : '🎯'}</div>
+                <div class="message-content">${escapeHtml(content)}</div>
+            `;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 设置加载状态
+        function setLoading(loading) {
+            isLoading = loading;
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = loading;
+            btn.textContent = loading ? '思考中...' : '发送';
+        }
+        
+        // 生成待办清单
+        async function generateTodos() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text) {
+                alert('请先输入客户服务场景描述');
+                return;
+            }
+            
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '<div class="loading"></div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/todos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ context: text })
+                });
+                
+                const data = await response.json();
+                
+                if (data.todos && data.todos.length > 0) {
+                    todoList.innerHTML = data.todos.map(todo => `
+                        <div class="todo-item">
+                            <div class="task">${escapeHtml(todo.task)}</div>
+                            <div class="meta">
+                                <span class="priority-${todo.priority === '高' ? 'high' : ''}">${todo.priority}优先级</span>
+                                <span>•</span>
+                                <span>${todo.timeframe}</span>
+                                <span>•</span>
+                                <span>${todo.category}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    todoList.innerHTML = '<div class="empty-todos">暂无建议</div>';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                todoList.innerHTML = '<div class="empty-todos">生成失败，请重试</div>';
+            }
+        }
+        
+        // 检查健康状态
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                if (data.status === 'healthy') {
+                    document.getElementById('statusText').textContent = `在线 - ${data.skills_loaded} 个技能已加载`;
+                }
+            } catch (e) {
+                document.getElementById('statusText').textContent = '离线 - 服务未启动';
+            }
+        }
+        
+        // 页面加载时检查健康状态
+        checkHealth();
+    </script>
+</body>
+</html>
