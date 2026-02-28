@@ -31,15 +31,18 @@ class SkillsRAG:
     
     def __init__(self, skills_path: str = None):
         if skills_path is None:
-            # 自动查找 skills 目录
+            # 自动查找 skills 目录（支持本地和 Docker）
             possible_paths = [
-                Path(__file__).parent.parent / "skills",
-                Path.cwd() / "skills",
-                Path(__file__).parent.parent.parent / "skills",
+                Path(__file__).parent.parent / "skills",  # 本地开发
+                Path.cwd() / "skills",  # 当前目录
+                Path.cwd().parent / "skills",  # 上级目录（Docker）
+                Path(__file__).parent.parent.parent / "skills",  # 项目根目录
+                Path("/app/skills"),  # Docker 绝对路径
             ]
             for path in possible_paths:
                 if path.exists():
                     skills_path = path
+                    print(f"✅ 找到 skills 目录: {path}")
                     break
         else:
             skills_path = Path(skills_path)
